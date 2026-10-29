@@ -5,21 +5,29 @@ html,body{margin:0;height:100%;background:#0d1117;overflow:hidden}canvas{display
 </style></head><body><div id="hint">WEB BUILDERS WORLD · arrows / WASD · space to jump · collect &lt;/&gt; tags · reach SHIP IT</div>
 <canvas id="c"></canvas><script>
 const cv=document.getElementById('c'),x=cv.getContext('2d');
-cv.width=innerWidth;cv.height=innerHeight;
 // ---- physics: max jump height ~144px, max jump range ~187px ----
 // ---- level rules: step-up <= 115px, gaps <= 140px ----------------
 const G=1.0, JUMP=-17, MOVE=5.5, COYOTE=6, BUFFER=6, MAXFALL=15;
-const FLOOR=innerHeight-90;
-const plats=[
- {x:-120,y:FLOOR,w:970,h:90},{x:980,y:FLOOR,w:520,h:90},
- {x:1640,y:FLOOR,w:560,h:90},{x:2340,y:FLOOR,w:620,h:90},
- {x:300,y:FLOOR-110,w:170,h:26},{x:560,y:FLOOR-220,w:170,h:26},
- {x:1000,y:FLOOR-110,w:150,h:26},{x:1270,y:FLOOR-220,w:160,h:26},
- {x:1730,y:FLOOR-110,w:160,h:26},{x:1970,y:FLOOR-220,w:160,h:26},
- {x:2190,y:FLOOR-320,w:140,h:26},{x:2400,y:FLOOR-110,w:150,h:26}];
-const tags=[{x:385,y:FLOOR-185},{x:645,y:FLOOR-295},{x:1075,y:FLOOR-185},{x:1350,y:FLOOR-295},
-{x:700,y:FLOOR-45},{x:1830,y:FLOOR-45},{x:2050,y:FLOOR-295},{x:2475,y:FLOOR-185}];
-const goal={x:2850,y:FLOOR};
+let FLOOR=innerHeight-90;
+// levels defined as offsets from the floor so the world can rebuild on resize
+const PLAT_DEF=[[-120,0,970,90],[980,0,520,90],[1640,0,560,90],[2340,0,620,90],
+[300,-110,170,26],[560,-220,170,26],[1000,-110,150,26],[1270,-220,160,26],
+[1730,-110,160,26],[1970,-220,160,26],[2190,-320,140,26],[2400,-110,150,26]];
+const TAG_DEF=[[385,-185],[645,-295],[1075,-185],[1350,-295],[700,-45],[1830,-45],[2050,-295],[2475,-185]];
+let plats=[],tags=[],goal={x:2850,y:FLOOR};
+function layout(){
+if(innerWidth<10||innerHeight<10)return false; // iframe not sized yet
+cv.width=innerWidth;cv.height=innerHeight;
+FLOOR=innerHeight-90;
+plats=PLAT_DEF.map(d=>({x:d[0],y:FLOOR+d[1],w:d[2],h:d[3]}));
+if(tags.length===0)tags=TAG_DEF.map(d=>({x:d[0],y:FLOOR+d[1],dy:d[1],got:false}));
+else tags.forEach((t,i)=>t.y=FLOOR+TAG_DEF[i][1]);
+goal.y=FLOOR;
+if(p.y>FLOOR-p.h)p.y=FLOOR-p.h;
+return true;}
+function layoutUntilReady(){if(!layout()){setTimeout(layoutUntilReady,120);requestAnimationFrame(layoutUntilReady);}}
+addEventListener('resize',()=>layout());
+layoutUntilReady();
 let p={x:60,y:FLOOR-44,w:34,h:44,vx:0,vy:0,ground:false,coyote:0,buffer:0,face:1,sq:1,sy:1};
 let cam=0,score=0,won=false,t=0,dust=[],spark=[];
 const glyphs=[];for(let i=0;i<26;i++)glyphs.push({x:Math.random()*3400,y:Math.random()*innerHeight,
