@@ -27,8 +27,8 @@ if(p.y>FLOOR-p.h)p.y=FLOOR-p.h;
 return true;}
 function layoutUntilReady(){if(!layout()){setTimeout(layoutUntilReady,120);requestAnimationFrame(layoutUntilReady);}}
 addEventListener('resize',()=>layout());
-layoutUntilReady();
 let p={x:60,y:FLOOR-44,w:34,h:44,vx:0,vy:0,ground:false,coyote:0,buffer:0,face:1,sq:1,sy:1};
+layoutUntilReady();
 let cam=0,score=0,won=false,t=0,dust=[],spark=[];
 const glyphs=[];for(let i=0;i<26;i++)glyphs.push({x:Math.random()*3400,y:Math.random()*innerHeight,
 s:['{','}','<','>',';','/'][i%6],s2:['=','+','#','!'][i%4],v:.3+Math.random()*.7});
